@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 1 · Module 2 — Financial‑Data Sourcing (No‑Code)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-gray-800 leading-relaxed">
+  <!-- Header -->
+  <header class="bg-emerald-700 text-white py-8 shadow">
+    <h1 class="text-center text-3xl font-bold tracking-wide">Module 2 · Financial‑Data Sourcing & SQL</h1>
+    <p class="text-center mt-1 text-sm">Download two price series · Import with pgAdmin · First JOIN query (no coding skills needed)</p>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-10 space-y-16">
+
+    <!-- Why it matters -->
+<section id="why">
+  <h2 class="text-2xl font-semibold mb-4">0 · Why do we care?</h2>
+  <p class="text-sm">Before we forecast or back‑test anything, we need clean <em>financial</em> price data. This mini‑lab walks you through grabbing equity, FX, <strong>and crypto</strong> time‑series in CSV format and parking them in a relational database <strong>without writing code</strong>.</p>
+</section>
+
+<!-- Install tools -->
+<section id="tools">
+  <h2 class="text-2xl font-semibold mb-4">1 · One‑Click Setup</h2>
+  <ol class="list-decimal list-inside space-y-2 text-sm">
+    <li><strong>PostgreSQL 16 + pgAdmin 4</strong> — download the bundled installer (<a class="underline text-emerald-700" href="https://www.postgresql.org/download/" target="_blank" rel="noopener">Windows / macOS / Linux</a>). Accept all defaults and remember the admin password.</li>
+    <li>Launch pgAdmin and confirm you see “PostgreSQL 16” in the tree.</li>
+  </ol>
+  <p class="text-xs italic mt-1">Need help? 3‑min video: <a class="underline text-emerald-700" href="https://youtu.be/TlB_eWDSMt4" target="_blank">Install PostgreSQL & pgAdmin</a></p>
+</section>
+
+<!-- Download CSVs -->
+<section id="download">
+  <h2 class="text-2xl font-semibold mb-4">2 · Download Market & Crypto CSVs</h2>
+
+  <!-- Market sub‑section -->
+  <div class="space-y-6 text-sm">
+    <article class="bg-white p-4 rounded-xl shadow">
+      <h3 class="font-semibold mb-1">2.1 Equity Benchmark — S&amp;P 500 ETF (SPY)</h3>
+      <p class="mb-1">Quickest source: <a class="underline text-emerald-700" href="https://stooq.com/q/d/l/?s=spy.us&i=d" target="_blank" rel="noopener">Stooq daily CSV</a> (no key, instant).</p>
+      <ol class="list-decimal list-inside space-y-1">
+        <li>Click the link — your browser auto‑downloads <code>spy_d.csv</code>.</li>
+        <li>Rename to <code>spy_daily.csv</code> for clarity.</li>
+      </ol>
+    </article>
+
+    <article class="bg-white p-4 rounded-xl shadow">
+      <h3 class="font-semibold mb-1">2.2 FX Rate — EUR/USD Spot</h3>
+      <p class="mb-1">Use Stooq again: <a class="underline text-emerald-700" href="https://stooq.com/q/d/l/?s=eurusd&i=d" target="_blank" rel="noopener">EURUSD daily CSV</a>.</p>
+      <ol class="list-decimal list-inside space-y-1">
+        <li>Download file <code>eurusd_d.csv</code>.</li>
+        <li>Rename to <code>eurusd_daily.csv</code>.</li>
+      </ol>
+    </article>
+  </div>
+
+  <!-- Crypto sub‑section -->
+  <article class="bg-white p-4 rounded-xl shadow mt-8 text-sm">
+    <h3 class="font-semibold mb-2">2.3 Crypto — Top 10 Coins by Market Cap (July 2025)</h3>
+    <p class="mb-1">Stooq hosts daily OHLCV CSVs for major coins. Click each link to download; rename files as suggested.</p>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-xs rounded-xl shadow">
+        <thead class="bg-slate-100">
+          <tr><th class="py-2 px-2 text-left font-medium">Rank</th><th class="py-2 px-2 text-left font-medium">Coin</th><th class="py-2 px-2 text-left font-medium">Stooq Ticker</th><th class="py-2 px-2 text-left font-medium">Download Link</th><th class="py-2 px-2 text-left font-medium">Save as</th></tr>
+        </thead>
+        <tbody>
+          <!--  Extra-alt links for coins Stooq doesn’t carry  -->
+<!--  Replace or append to your current <tr> rows   -->
+
+<!-- Bitcoin -->
+<tr class="border-t"><td class="py-1 px-2">1</td><td class="py-1 px-2">Bitcoin</td><td class="py-1 px-2">BTCUSD</td>
+  <td class="py-1 px-2"><a class="underline text-emerald-700" href="https://stooq.com/q/d/l/?s=btcusd&i=d" target="_blank">CSV</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"     href="https://www.cryptodatadownload.com/cdd/Coinbase_BTCUSD_d.csv" target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"     href="https://www.cryptodatadownload.com/cdd/Binance_BTCUSDT_d.csv" target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">btc_daily.csv</td></tr>
+
+<!-- Ethereum -->
+<tr class="border-t bg-slate-50"><td class="py-1 px-2">2</td><td class="py-1 px-2">Ethereum</td><td class="py-1 px-2">ETHUSD</td>
+  <td class="py-1 px-2"><a class="underline text-emerald-700"  href="https://stooq.com/q/d/l/?s=ethusd&i=d" target="_blank">CSV</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_ETHUSD_d.csv" target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_ETHUSDT_d.csv" target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">eth_daily.csv</td></tr>
+
+<!-- Tether (no Stooq) 
+<tr class="border-t"><td class="py-1 px-2">3</td><td class="py-1 px-2">Tether USD₮</td><td class="py-1 px-2">USDTUSD</td>
+  <td class="py-1 px-2">—</td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_USDTUSDC_d.csv" target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_USDTUSD_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">usdt_daily.csv</td></tr>-->
+
+<!-- BNB -->
+<tr class="border-t bg-slate-50"><td class="py-1 px-2">3</td><td class="py-1 px-2">BNB</td><td class="py-1 px-2">BNBUSD</td>
+  <td class="py-1 px-2">—</td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_BNBUSDT_d.csv"  target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_BNBUSD_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">bnb_daily.csv</td></tr>
+
+<!-- XRP -->
+<tr class="border-t"><td class="py-1 px-2">4</td><td class="py-1 px-2">XRP</td><td class="py-1 px-2">XRPUSD</td>
+  <td class="py-1 px-2"><a class="underline text-emerald-700"  href="https://stooq.com/q/d/l/?s=xrpusd&i=d" target="_blank">CSV</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_XRPUSD_d.csv"  target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_XRPUSDT_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">xrp_daily.csv</td></tr>
+
+<!-- Solana -->
+<tr class="border-t bg-slate-50"><td class="py-1 px-2">5</td><td class="py-1 px-2">Solana</td><td class="py-1 px-2">SOLUSD</td>
+  <td class="py-1 px-2"><a class="underline text-emerald-700"  href="https://stooq.com/q/d/l/?s=solusd&i=d" target="_blank">CSV</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_SOLUSDT_d.csv"  target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_SOLUSD_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">sol_daily.csv</td></tr>
+
+<!-- Cardano -->
+<tr class="border-t"><td class="py-1 px-2">6</td><td class="py-1 px-2">Cardano (ADA)</td><td class="py-1 px-2">ADAUSD</td>
+  <td class="py-1 px-2"><a class="underline text-emerald-700"  href="https://stooq.com/q/d/l/?s=adausd&i=d" target="_blank">CSV</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_ADAUSDT_d.csv"  target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_ADAUSD_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">ada_daily.csv</td></tr>
+
+<!-- Dogecoin -->
+<tr class="border-t bg-slate-50"><td class="py-1 px-2">7</td><td class="py-1 px-2">Dogecoin</td><td class="py-1 px-2">DOGEUSD</td>
+  <td class="py-1 px-2"><a class="underline text-emerald-700"  href="https://stooq.com/q/d/l/?s=dogeusd&i=d" target="_blank">CSV</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_DOGEUSDT_d.csv"  target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_DOGEUSD_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">doge_daily.csv</td></tr>
+
+<!-- Toncoin (no Stooq) -->
+<tr class="border-t"><td class="py-1 px-2">8</td><td class="py-1 px-2">Toncoin</td><td class="py-1 px-2">TONUSD</td>
+  <td class="py-1 px-2">—</td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Kucoin_TONUSDT_d.csv"    target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Gateio_TONUSDT_d.csv"    target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">ton_daily.csv</td></tr>
+
+<!-- Avalanche -->
+<tr class="border-t bg-slate-50"><td class="py-1 px-2">9</td><td class="py-1 px-2">Avalanche (AVAX)</td><td class="py-1 px-2">AVAXUSD</td>
+  <td class="py-1 px-2">—</td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Binance_AVAXUSDT_d.csv"  target="_blank">CDD 1</a></td>
+  <td class="py-1 px-2"><a class="underline text-blue-700"      href="https://www.cryptodatadownload.com/cdd/Coinbase_AVAXUSD_d.csv"  target="_blank">CDD 2</a></td>
+  <td class="py-1 px-2">avax_daily.csv</td></tr>
+</tbody>
+      </table>
+    </div>
+    <p class="text-xs italic mt-2">If a ticker returns a 404, Stooq hasn’t listed that coin yet — choose the nearest market‑cap substitute or fall back to <a class="underline" href="https://www.coingecko.com/en/api/documentation" target="_blank">CoinGecko API</a>.</p>
+  </article>
+
+  <p class="text-xs italic mt-4">Stooq mirrors historical prices from primary exchanges & crypto aggregators. License: free for academic use; daily files include OHLCV, comma delimiter.</p>
+</section>
+
+    <!-- Import with pgAdmin wizard -->
+    <section id="import">
+      <h2 class="text-2xl font-semibold mb-4">3 · Import CSVs into PostgreSQL (GUI‑only)</h2>
+      <p class="text-sm mb-2">Goal: two tables called <code>spy_daily</code> and <code>eurusd_daily</code>.</p>
+      <details class="bg-white rounded-lg p-4 shadow text-sm">
+        <summary class="font-semibold cursor-pointer">Show 4‑step wizard ▾</summary>
+        <ol class="list-decimal list-inside mt-2 space-y-1">
+          <li>Right‑click <strong>Databases ▸ postgres ▸ Schemas ▸ public</strong> → <em>Create › Table…</em></li>
+          <li>Name table <code>spy_daily</code>. In <strong>Columns</strong> tab add <code>date</code> (DATE) & <code>close</code> (NUMERIC).</li>
+          <li>After saving, right‑click table → <em>Import/Export</em>. Format CSV, select <code>spy_daily.csv</code>, Delimiter <code>,</code>, Header ✓.</li>
+          <li>Repeat for <code>eurusd_daily</code> (columns: <code>date</code>, <code>close</code>).</li>
+        </ol>
+      </details>
+      <pre class="bg-slate-100 rounded p-3 text-xs overflow-x-auto">-- OR go directly to the Query section
+CREATE TABLE eurusd_daily (
+    date     DATE,
+    open     NUMERIC,
+    high     NUMERIC,
+    low      NUMERIC,
+    close    NUMERIC
+);
+
+COPY eurusd_daily
+FROM 'D:/Downloads/eurusd_d.csv'   -- adjust path
+WITH (FORMAT csv, HEADER, DELIMITER ',');
+-- Repeat for spy_daily
+</pre>
+    </section>
+
+    <!-- First SQL peek -->
+    <section id="sql-peek">
+      <h2 class="text-2xl font-semibold mb-4">4 · First Peek at SQL (Copy‑paste)</h2>
+      <p class="text-sm mb-2">Open the <strong>Query Tool</strong> in pgAdmin and paste:</p>
+      <pre class="bg-slate-100 rounded p-3 text-xs overflow-x-auto">-- view recent SPY closes
+SELECT * FROM spy_daily ORDER BY date DESC LIMIT 5;
+
+-- merge SPY & EURUSD on date to check co‑movement
+SELECT s.date, s.close AS spy_close, e.close AS eurusd_close
+FROM spy_daily s
+JOIN eurusd_daily e ON s.date = e.date
+ORDER BY s.date DESC
+LIMIT 5;</pre>
+      <p class="text-xs italic mt-1">You just joined two asset classes on a common key (<code>date</code>) without writing any Python.</p>
+    </section>
+
+    <!-- Commit via GitHub Web UI -->
+    <section id="commit">
+      <h2 class="text-2xl font-semibold mb-4">5 · Upload Raw Data to GitHub (Web‑only)</h2>
+      <ol class="list-decimal list-inside space-y-2 text-sm">
+        <li>In your repo on <a class="underline text-emerald-700" href="https://github.com/" target="_blank">github.com</a> click <em>Add file › Upload files</em>.</li>
+        <li>Drag <code>spy_daily.csv</code> &amp; <code>eurusd_daily.csv</code> into <code>data/raw/</code>.</li>
+        <li>Commit message: <code>feat(data): add SPY & EURUSD raw CSV</code> ➞ create new branch.</li>
+        <li>Open Pull Request and assign a peer reviewer.</li>
+      </ol>
+    </section>
+
+    
+  <footer class="text-center py-4 text-xs text-gray-500">
+    © 2025 Big Data & Statistical Learning — FinTech - AI Studio
+  </footer>
+</body>
+</html>

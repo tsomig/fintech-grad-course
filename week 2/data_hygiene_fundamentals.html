@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data‑Hygiene Fundamentals</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.6;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      color: #1f2937;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+      line-height: 1.25;
+      margin: 1.6rem 0 1rem;
+    }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.25rem; }
+    h3 { font-size: 1.25rem; }
+    ul, ol { margin-left: 1.25rem; }
+    code { background: #f3f4f6; padding: 0.15rem 0.35rem; border-radius: 4px; }
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      border-left: 4px solid #cbd5e1;
+      background: #f9fafb;
+      font-style: italic;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    th { background: #f9fafb; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Data‑Hygiene Fundamentals</h1>
+  <p><em>10‑minute primer for the postgraduate course “Big&nbsp;Data &amp; Statistical&nbsp;Learning in Economics &amp; Finance.”</em></p>
+
+  <h2>1. Why Care About Data Hygiene?</h2>
+  <p>Upstream data issues seldom crash a model outright—rather, they quietly nudge parameters and risk metrics off course, amplifying when leverage, automated trading, or policy decisions hinge on subtle signals. A <strong>tidy, well‑documented dataset</strong> is therefore more than housekeeping; it is <em>risk mitigation</em>, <em>reproducibility insurance</em>, and <em>credibility capital</em>.</p>
+
+  <h2>2. The Five Tidy‑Data Principles</h2>
+  <ol>
+    <li><strong>Each variable in a column.</strong> Avoid packing multiple attributes into one string (e.g., “USD‑Price”).</li>
+    <li><strong>Each observation in a row.</strong> Don’t stack quarterly metrics horizontally; keep them vertical with a <code>period</code> column.</li>
+    <li><strong>One observational unit per table.</strong> Separate <code>trades</code>, <code>accounts</code>, and <code>clients</code>.</li>
+    <li><strong>Values are atomic.</strong> No JSON blobs or comma‑separated lists hidden in cells.</li>
+    <li><strong>Columns have explicit types and names.</strong> Use snake_case (i.e. each space is replaced with an underscore (_) character) and ISO‑8601 (i.e. YYYY-MM-DD) for dates.</li>
+  </ol>
+
+  <h2>3. Missing‑Value Taxonomy</h2>
+  <p>Not all <code>NaN</code>s are created equal. Classify before you impute.</p>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Definition</th><th>Typical Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>MCAR</strong> (Missing Completely at Random)</td><td>Absence unrelated to observed or unobserved data — e.g., sensor glitch.</td><td>Listwise deletion usually safe.</td></tr>
+      <tr><td><strong>MAR</strong> (Missing at Random)</td><td>Missingness depends on <em>observed</em> data — e.g., income blank if job = “student.”</td><td>Multiple imputation or model‑based.</td></tr>
+      <tr><td><strong>MNAR</strong> (Missing Not at Random)</td><td>Missingness depends on the <em>missing</em> value itself — e.g., non‑reported losses.</td><td>Sensitivity analysis, domain expertise; imputation risky.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Visual Clues</h3>
+  <ul>
+    <li><strong>Stripe patterns</strong> across a row → device dropouts (likely MCAR).</li>
+    <li><strong>Block missingness</strong> aligned with a category → business rule (often MAR).</li>
+    <li><strong>Isolated extremes</strong> absent → possible MNAR censoring.</li>
+  </ul>
+
+  <h2>4. Strategies for Handling Missing Values</h2>
+  <blockquote>Rule of thumb: start simple, keep a log, and measure downstream impact.</blockquote>
+  <table>
+    <thead>
+      <tr><th>Technique</th><th>Pros</th><th>Cons</th><th>Python / Polars one‑liner</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Listwise deletion</td><td>Easy, preserves variance</td><td>Can bias if not MCAR (reduce statistical power)</td><td><code>df.dropna()</code></td></tr>
+      <tr><td>Forward/back fill</td><td>Good for time‑series (continuity neccesity) gaps</td><td>Fails on long gaps</td><td><code>df.fillna(method="ffill")</code></td></tr>
+      <tr><td>Mean/Median</td><td>Fast baseline</td><td>Distorts variance</td><td><code>df["x"].fillna(df["x"].median())</code></td></tr>
+      <tr><td>K‑NN or MICE (Multivariate Imputation by Chained Equations)</td><td>Captures multivariate structure</td><td>Heavy, reproducibility issues</td><td><code>IterativeImputer()</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Column Types &amp; Casting “Gotchas” (traps)</h2>
+  <ul>
+    <li><strong>Integer nulls ⇒ Int64‑pd</strong> not int.</li>
+    <li><strong>Currency ⇒ Decimal128</strong> to avoid float drift.</li>
+    <li><strong>Time‑zones</strong>: always localise with <code>.tz_convert("UTC")</code>.</li>
+  </ul>
+
+  <h2>6. Pandas vs Polars Quick‑Switch Guide</h2>
+  <blockquote>Pandas is a well-established, single-threaded Python library for data manipulation, built on NumPy, which uses eager execution and can be memory-intensive. Polars is a newer, multi-threaded library written in Rust that leverages lazy execution and the Apache Arrow format for superior performance and memory efficiency, especially with large datasets.</blockquote>
+  <table>
+    <thead>
+      <tr><th>Task</th><th>Pandas</th><th>Polars</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Lazy eval pipeline</td><td>N/A (use Dask)</td><td><code>pl.scan_csv("file").with_columns(...)</code></td></tr>
+      <tr><td>SQL‑like joins</td><td><code>df.merge(b, on="id", how="left")</code></td><td><code>a.join(b, on="id", how="left")</code></td></tr>
+      <tr><td>Reshape (wide → long)</td><td><code>df.melt(...)</code></td><td><code>df.melt(...)</code></td></tr>
+      <tr><td>Groupby agg</td><td><code>df.groupby("sym").agg({"px":"mean"})</code></td><td><code>df.groupby("sym").agg(pl.col("px").mean())</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. Pre‑Flight Checklist</h2>
+  <ol>
+    <li>No duplicated rows or indices.</li>
+    <li>Date range matches specification, no future timestamps.</li>
+    <li>All numeric columns numeric; strings trimmed; categories labelled.</li>
+    <li>Missing values classified &amp; logged; imputation script reproducible.</li>
+    <li>Save <code>.parquet</code> with schema version &amp; git hash in metadata.</li>
+  </ol>
+
+  <h2>8. Further Reading</h2>
+  <ul>
+    <li>Hadley Wickham, “Tidy Data,” <em>Journal of Statistical Software</em>.</li>
+    <li>Susan Little &amp; Tom Phan, “Missing Data Patterns in Financial Time‑Series,” SSRN 2022.</li>
+    <li>Daniel H. Kaplan, <em>Modeling Missingness</em>, Chapman &amp; Hall.</li>
+  </ul>
+
+  <p style="margin-top:2rem;font-size:0.9rem;color:#6b7280;">© 2025 Big Data &amp; Statistical Learning (Athens). Released under CC‑BY‑SA 4.0.</p>
+</body>
+</html>

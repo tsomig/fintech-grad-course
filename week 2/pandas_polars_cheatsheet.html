@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pandas ↔ Polars Pocket Cheat‑Sheet</title>
+<style>
+  body {font-family: system-ui, sans-serif; max-width: 900px; margin:0 auto; padding:2rem; line-height:1.6; color:#374151;}
+  h1 {font-size:1.8rem; font-weight:600; margin-bottom:1.2rem;}
+  table {width:100%; border-collapse:collapse; margin:1rem 0;}
+  th, td {border:1px solid #e5e7eb; padding:0.45rem 0.6rem;}
+  th {background:#f9fafb; font-weight:600; text-align:left;}
+  code {background:#f3f4f6; padding:0.15rem 0.35rem; border-radius:4px;}
+</style>
+</head>
+<body>
+<h1>Pandas ↔ Polars Pocket Cheat‑Sheet (20 Recipes)</h1>
+<p><em>Tip: Most Polars snippets work in <code>lazy()</code> pipelines for scalable execution.</em></p>
+<table>
+<thead>
+<tr><th>#</th><th>Task</th><th>Pandas</th><th>Polars</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Read CSV</td><td><code>pd.read_csv('file.csv')</code></td><td><code>pl.read_csv('file.csv')</code></td></tr>
+<tr><td>2</td><td>Lazy read</td><td>—</td><td><code>pl.scan_csv('file.csv')</code></td></tr>
+<tr><td>3</td><td>Head 5 rows</td><td><code>df.head()</code></td><td><code>df.head()</code></td></tr>
+<tr><td>4</td><td>Select cols</td><td><code>df[['a','b']]</code></td><td><code>df.select(['a','b'])</code></td></tr>
+<tr><td>5</td><td>Rename col</td><td><code>df.rename(columns={'old':'new'})</code></td><td><code>df.rename({'old':'new'})</code></td></tr>
+<tr><td>6</td><td>Filter rows</td><td><code>df[df['x']>0]</code></td><td><code>df.filter(pl.col('x')>0)</code></td></tr>
+<tr><td>7</td><td>Assign new col</td><td><code>df.assign(z=df.x*2)</code></td><td><code>df.with_columns((pl.col('x')*2).alias('z'))</code></td></tr>
+<tr><td>8</td><td>Group & agg</td><td><code>df.groupby('g').agg({'y':'mean'})</code></td><td><code>df.groupby('g').agg(pl.col('y').mean())</code></td></tr>
+<tr><td>9</td><td>Merge left</td><td><code>df.merge(b,on='id',how='left')</code></td><td><code>df.join(b,on='id',how='left')</code></td></tr>
+<tr><td>10</td><td>Pivot wider</td><td><code>df.pivot(index='i',columns='c',values='v')</code></td><td><code>df.pivot(values='v',index='i',columns='c')</code></td></tr>
+<tr><td>11</td><td>Melt (long)</td><td><code>df.melt(id_vars=['id'])</code></td><td><code>df.melt(id_vars=['id'])</code></td></tr>
+<tr><td>12</td><td>Sort multi</td><td><code>df.sort_values(['a','b'])</code></td><td><code>df.sort(['a','b'])</code></td></tr>
+<tr><td>13</td><td>Rolling mean</td><td><code>df['x'].rolling(3).mean()</code></td><td><code>df.select(pl.col('x').rolling_mean(3))</code></td></tr>
+<tr><td>14</td><td>Window sum</td><td><code>df.groupby('g')['x'].cumsum()</code></td><td><code>df.with_columns(pl.col('x').cumsum().over('g'))</code></td></tr>
+<tr><td>15</td><td>Datetime parse</td><td><code>pd.to_datetime(df['d'])</code></td><td><code>df.with_columns(pl.col('d').str.strptime(pl.Date))</code></td></tr>
+<tr><td>16</td><td>Drop NA rows</td><td><code>df.dropna()</code></td><td><code>df.drop_nulls()</code></td></tr>
+<tr><td>17</td><td>Fill NA ffill</td><td><code>df.fillna(method='ffill')</code></td><td><code>df.fill_null(strategy='forward')</code></td></tr>
+<tr><td>18</td><td>Pipe function</td><td><code>df.pipe(func)</code></td><td><code>df.pipe(func)</code></td></tr>
+<tr><td>19</td><td>Parallel apply</td><td><code>df.apply(func,axis=1)</code></td><td><code>df.map_rows(func)</code></td></tr>
+<tr><td>20</td><td>Export Parquet</td><td><code>df.to_parquet('out.pq')</code></td><td><code>df.write_parquet('out.pq')</code></td></tr>
+</tbody>
+</table>
+<p style="font-size:0.85rem;color:#6b7280;">© 2025 Big Data & Statistical Learning — Week 2 Cheat‑Sheet</p>
+</body>
+</html>
